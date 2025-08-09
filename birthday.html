@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Birthday Surprise — Fixed Merge</title>
+<style>
+  /* Reset / base */
+  * { box-sizing: border-box; }
+  html,body { height: 100%; margin: 0; padding: 0; }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    overflow: hidden;
+    text-align: center;
+    /* keep the soft pink gradient used in Layer 1 as the base theme */
+    background: linear-gradient(to bottom right, #ffe6f0, #ffcce0);
+  }
+
+  /* ===== Layer 1 (welcome) ===== */
+  .layer1 {
+    padding-bottom: 50px;
+  }
+  .layer1 h1 {
+    color: #ff3399;
+    font-size: 2.5rem;
+    margin-top: 50px;
+    text-shadow: 2px 2px #fff;
+  }
+  .teddy-container { margin-top: 30px; }
+  video.teddy-video {
+    width: 300px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(255,105,180,0.6);
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  .welcome-msg { margin-top: 30px; font-size: 1.15rem; color: #cc0066; }
+
+  .next-button {
+    margin-top: 40px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    background-color: #ff66b2;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.25s ease;
+  }
+  .next-button:hover { background-color: #ff3385; transform: scale(1.03); }
+
+  /* ===== Layer 2 (tulips) ===== */
+  .layer2 {
+    background: url('my-tulips.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .layer2.active { display: flex; }
+  .message-box {
+    background: rgba(255,255,255,0.2);
+    padding: 30px 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid #fff;
+    text-align: center;
+    max-width: 90%;
+    box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    animation: glow 2s infinite alternate;
+  }
+  .message-box h2 { color: #fff; text-shadow: 0 0 10px #ff66cc; font-size: 2rem; }
+  @keyframes glow { from { box-shadow: 0 0 20px #ff99cc } to { box-shadow: 0 0 40px #ff66cc } }
+  .layer2 .next-button { margin-top: 30px; background-color: #ff66b2; }
+  .layer2 .next-button:hover { background-color: #ff3399; }
+
+  /* ===== Layer 3 (memories) ===== */
+  .layer3 {
+    display: none;
+    background: linear-gradient(to right, #ffe0f0, #d0faff);
+    padding: 40px 20px;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+  }
+  .layer3.active { display: block; }
+
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+    transform-origin: center;
+    will-change: transform, opacity;
+    animation-name: floatSparkle;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes floatSparkle {
+    0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(-110vh) scale(1) rotate(360deg); opacity: 0; }
+  }
+  .layer3 h1 {
+    text-align: center;
+    color: #ff1493;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px rgba(255,105,180,0.6);
+  }
+  .layer3 .message-box {
+    background: rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 0 auto 30px auto;
+    max-width: 600px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #ff1493;
+    font-style: italic;
+    box-shadow: 0 0 15px rgba(255,105,180,0.3);
+    animation: glow 2s infinite alternate;
+  }
+
+  .timeline { position: relative; max-width: 800px; margin: auto; }
+  .timeline::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    background-color: #ff69b4;
+    top: 0; bottom: 0; left: 50%; margin-left: -3px;
+    animation: pulseLine 2s infinite alternate;
+  }
+  @keyframes pulseLine { 0% { box-shadow: 0 0 5px #ff69b4 } 100% { box-shadow: 0 0 15px #ff1493 } }
+
+  .memory {
+    background: #fff;
+    padding: 15px;
+    position: relative;
+    width: 45%;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    margin-bottom: 60px;
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+    transition: all 0.8s ease;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .memory img {
+    width: 100%;
+    border-radius: 10px;
+    border: 5px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.4s ease;
+  }
+  .memory img:hover {
+    transform: scale(1.03) rotate(-1deg);
+    box-shadow: 0 6px 15px rgba(255,105,180,0.5);
+  }
+  .memory.show { opacity: 1; transform: translateY(0) scale(1); }
+
+  .next-btn {
+    display: block;
+    margin: 30px auto;
+    padding: 12px 30px;
+    font-size: 1rem;
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .next-btn:hover { background-color: #ff1493; transform: scale(1.05); }
+
+  @media (max-width: 768px) {
+    .memory { width: 100%; left: 0 !important; display: block; }
+    .timeline::after { left: 20px; }
+  }
+
+  /* ===== Layer 4 (cake) — scoped to #layer4 to avoid collisions ===== */
+  #layer4 {
+    display: none;
+    min-height: 100vh;
+    padding: 30px 20px;
+    background: #fff3f7; /* kept local */
+    box-sizing: border-box;
+  }
+  #layer4.active { display: block; }
+  #layer4 h1 { margin-top: 20px; color: #ff4d88; text-shadow: 2px 2px #ffe6ee; }
+
+  /* cake elements scoped under #layer4 */
+  #layer4 .cake { position: relative; width: 180px; margin: 60px auto 20px; }
+  #layer4 .cake-tier { border-radius: 20px; margin: 0 auto; position: relative; }
+  #layer4 .cake-tier-1 { width: 180px; height: 60px; background: pink; box-shadow: inset 0 -8px #ffb6c1; }
+  #layer4 .cake-tier-2 { width: 140px; height: 50px; background: gold; box-shadow: inset 0 -8px #ffd700; }
+  #layer4 .cake-tier-3 { width: 100px; height: 40px; background: pink; box-shadow: inset 0 -6px #ffb6c1; }
+  #layer4 .plate {
+    width: 200px; height: 20px; background: #f5f5f5; border-radius: 50%; margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  #layer4 .candles {
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%); display:flex; gap:15px;
+  }
+  #layer4 .candle { width: 10px; height: 40px; background: #ffb347; border-radius: 5px; position: relative; }
+  #layer4 .flame {
+    width: 12px; height: 12px; background: radial-gradient(circle, yellow, orange);
+    border-radius: 50%; position: absolute; top: -15px; left: -1px; animation: flicker 0.15s infinite alternate;
+  }
+  @keyframes flicker { 0% { transform: scale(1) rotate(0deg); opacity:1 } 100% { transform: scale(1.1) rotate(5deg); opacity:0.85 } }
+  @keyframes blowOut { 0% { transform: scale(1); opacity:1 } 100% { transform: scale(0); opacity:0 } }
+
+  /* balloons & confetti (scoped) */
+  #layer4 .balloon {
+    position: absolute; bottom: -100px; width: 40px; height: 50px; border-radius: 50%;
+    animation: floatUp linear infinite;
+  }
+  #layer4 .balloon::after {
+    content:""; position:absolute; top:50px; left:50%; width:2px; height:40px; background:#555;
+  }
+  @keyframes floatUp { 0% { transform: translateY(0) } 100% { transform: translateY(-110vh) } }
+
+  #layer4 .confetti { position:absolute; width:8px; height:8px; animation: fallDown linear infinite; }
+  @keyframes fallDown { 0% { transform: translateY(-10px); opacity:1 } 100% { transform: translateY(110vh); opacity:0 } }
+
+  /* buttons and generic video styling (kept consistent) */
+  button, #layer4 button { background: #ff66b2; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-size: 18px; cursor:pointer; font-family: 'Comic Sans MS', cursive; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-top: 20px; }
+  button:hover, #layer4 button:hover { background: #ff3385; }
+
+  #layer4 video { margin-top: 20px; border: 4px solid #ff99cc; border-radius: 15px; max-width: 90%; }
+
+  /* ===== Layer 5 (starry sky) ===== */
+  .layer5 {
+    display: none;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000 100%);
+    overflow: hidden;
+    color: white;
+    font-family: 'Courier New', monospace;
+  }
+  .layer5.active { display: block; }
+
+  .layer5 .star {
+    position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: twinkle 2s infinite ease-in-out;
+  }
+  @keyframes twinkle { 0%,100% { opacity: 0.8 } 50% { opacity: 0.3 } }
+
+  .layer5 .shooting-star { position: absolute; height:2px; background: linear-gradient(270deg, white, rgba(255,255,255,0)); border-radius:50%; filter: drop-shadow(0 0 6px white); }
+  .layer5 .nebula { position:absolute; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius:50%; animation: drift 60s infinite linear; }
+  @keyframes drift { from { transform: translate(0,0) scale(1) } to { transform: translate(200px, -200px) scale(1.5) } }
+  .layer5 .message { position:absolute; width:100%; text-align:center; font-size:2rem; top:40%; opacity:0; transition: opacity 2s ease-in-out; }
+
+  /* small layout helpers */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+  <!-- Background music (kept as requested) -->
+  <audio id="bgm" autoplay loop>
+    <source src="your-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ===== Layer 1 ===== -->
+  <section id="layer1" class="layer1">
+    <h1>🎉 Welcome to the Birthday Surprise 🎉</h1>
+    <div class="teddy-container">
+      <video class="teddy-video" autoplay muted loop playsinline>
+        <source src="teddy.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="welcome-msg">
+      <p>Get ready for the cutest celebration ever! 🧸💖</p>
+    </div>
+    <button class="next-button" onclick="showLayer2()">Next ➡️</button>
+  </section>
+
+  <!-- ===== Layer 2 ===== -->
+  <section id="layer2" class="layer2">
+    <div class="message-box">
+      <h2>
+        🌷Happiest birthday dear Anyaa,
+    May Bajrangbali bless you with happiness and may you have the most beautiful birthday ever.  
+    (A heart so kind, a soul so bright,  
+    You make even dull days feel light.  
+    Happy birthday, queen of grace,  
+    May life always give you a warm embrace. 💐)  
+    Best wishes for my cutest friend 🎉✨ May your day bloom as beautifully as these tulips,<br/>
+        just like your smile lights up the world. 🌸<br/><br/>
+        Ready for the next surprise? 🎁
+      </h2>
+    </div>
+    <button class="next-button" onclick="showLayer3()">Next ➡️</button>
+  </section>
+
+  <!-- ===== Layer 3 ===== -->
+  <section id="layer3" class="layer3">
+    <h1>🌸 My Sweet Memories 🌸</h1>
+    <div class="message-box">
+      “Some moments are special not because they lasted long, but because they touched the heart forever.” 💖
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="memory" id="mem1"><img src="your-photo1.jpg" alt="Memory 1"></div>
+      <div class="memory" id="mem2"><img src="your-photo2.jpg" alt="Memory 2"></div>
+      <div class="memory" id="mem3"><img src="your-photo3.jpg" alt="Memory 3"></div>
+    </div>
+    <button class="next-btn" onclick="showLayer4()">Next ➡️</button>
+  </section>
+
+  <!-- ===== Layer 4 ===== -->
+  <div id="layer4">
+    <h1>🎂 Happy Birthday! 🎂</h1>
+    <div class="cake">
+      <div class="candles">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+      </div>
+      <div class="cake-tier cake-tier-3"></div>
+      <div class="cake-tier cake-tier-2"></div>
+      <div class="cake-tier cake-tier-1"></div>
+      <div class="plate"></div>
+    </div>
+
+    <button onclick="blowCandles()">🌟 Make a Wish & Go to Layer 5 🌟</button>
+
+    <video controls>
+      <source src="your-video.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <!-- ===== Layer 5 ===== -->
+  <div id="layer5" class="layer5"></div>
+
+<script>
+  // Attempt to play bgm (may be blocked until user interaction in some browsers)
+  document.getElementById('bgm').play().catch(()=>{ /* autoplay blocked — will play after user interacts */ });
+
+  /* Navigation helpers */
+  function hideAll() {
+    document.getElementById('layer1').classList.remove('active'); document.getElementById('layer1').style.display = 'none';
+    document.getElementById('layer2').classList.remove('active'); document.getElementById('layer2').style.display = 'none';
+    document.getElementById('layer3').classList.remove('active'); document.getElementById('layer3').style.display = 'none';
+    document.getElementById('layer4').classList.remove('active'); document.getElementById('layer4').style.display = 'none';
+    document.getElementById('layer5').classList.remove('active'); document.getElementById('layer5').style.display = 'none';
+  }
+
+  function showLayer2() {
+    hideAll();
+    const l2 = document.getElementById('layer2');
+    l2.style.display = 'flex';
+    l2.classList.add('active');
+    // try to resume music after interaction
+    document.getElementById('bgm').play().catch(()=>{});
+  }
+
+  function showLayer3() {
+    hideAll();
+    const l3 = document.getElementById('layer3');
+    l3.style.display = 'block';
+    l3.classList.add('active');
+
+    // add sparkles only once
+    if (!l3.dataset.sparklesAdded) {
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'sparkle';
+        heart.textContent = '❤';
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.top = Math.random() * 100 + '%';
+        heart.style.fontSize = (Math.random() * 14 + 10) + 'px';
+        heart.style.color = ['#ffb6c1', '#ff69b4', '#ff1493'][Math.floor(Math.random() * 3)];
+        heart.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        heart.style.animationDelay = (Math.random() * -6) + 's';
+        l3.appendChild(heart);
+      }
+      l3.dataset.sparklesAdded = '1';
+    }
+
+    // reveal memory animation (IntersectionObserver for larger screens)
+    const memories = document.querySelectorAll('#timeline .memory');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    memories.forEach(mem => observer.observe(mem));
+  }
+
+  function showLayer4() {
+    hideAll();
+    const l4 = document.getElementById('layer4');
+    l4.style.display = 'block';
+    l4.classList.add('active');
+
+    // add balloons/confetti only once
+    if (!l4.dataset.decorationAdded) {
+      // Balloons
+      for (let i = 0; i < 8; i++) {
+        const b = document.createElement('div');
+        b.className = 'balloon';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.background = `hsl(${Math.random() * 360},70%,60%)`;
+        b.style.animationDuration = (4 + Math.random() * 4) + 's';
+        l4.appendChild(b);
+      }
+      // Confetti
+      for (let i = 0; i < 40; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = `hsl(${Math.random() * 360},70%,60%)`;
+        c.style.animationDuration = (2 + Math.random() * 3) + 's';
+        l4.appendChild(c);
+      }
+      l4.dataset.decorationAdded = '1';
+    }
+  }
+
+  function blowCandles() {
+    // animate flames to blow out
+    document.querySelectorAll('#layer4 .flame').forEach(f => f.style.animation = 'blowOut 0.5s forwards');
+    setTimeout(() => {
+      // hide cake layer and start layer5
+      document.getElementById('layer4').style.display = 'none';
+      startLayer5();
+    }, 800);
+  }
+
+  function startLayer5() {
+    const layer5 = document.getElementById('layer5');
+    if (layer5.dataset.started) {
+      // already started, just show it
+      hideAll();
+      layer5.style.display = 'block';
+      layer5.classList.add('active');
+      return;
+    }
+    hideAll();
+    layer5.style.display = 'block';
+    layer5.classList.add('active');
+
+    // Stars
+    for (let i = 0; i < 150; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2 + 0.5;
+      s.style.width = `${size}px`;
+      s.style.height = `${size}px`;
+      s.style.top = `${Math.random() * 100}vh`;
+      s.style.left = `${Math.random() * 100}vw`;
+      s.style.animationDelay = `${Math.random() * 2}s`;
+      layer5.appendChild(s);
+    }
+
+    // Nebula clouds
+    for (let i = 0; i < 3; i++) {
+      const n = document.createElement('div');
+      n.className = 'nebula';
+      const size = 300 + Math.random() * 300;
+      n.style.width = `${size}px`;
+      n.style.height = `${size}px`;
+      n.style.top = `${Math.random() * 80}vh`;
+      n.style.left = `${Math.random() * 80}vw`;
+      n.style.animationDuration = `${50 + Math.random() * 30}s`;
+      layer5.appendChild(n);
+    }
+
+    // Shooting stars
+    setInterval(() => {
+      if (Math.random() < 0.7) {
+        const ss = document.createElement('div');
+        ss.className = 'shooting-star';
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 50;
+        ss.style.top = `${startY}vh`;
+        ss.style.left = `${startX}vw`;
+        ss.style.width = `150px`;
+        layer5.appendChild(ss);
+        const anim = ss.animate([
+          { transform: `translate(0,0)`, opacity: 1 },
+          { transform: `translate(200px,200px)`, opacity: 0 }
+        ], { duration: 1500, easing: 'ease-out' });
+        anim.onfinish = () => ss.remove();
+      }
+    }, 2000);
+
+    // Messages
+    const msg1 = document.createElement('div');
+    msg1.className = 'message';
+    msg1.innerText = "⭐✨Your wish is on its way to the stars ⭐✨";
+    layer5.appendChild(msg1);
+
+    const msg2 = document.createElement('div');
+    msg2.className = 'message';
+    msg2.innerText = "💖 You’re not just a friend — you're a blessing I never expected. Your presence makes my day, and your kindness, laughter, and motivation inspire me more than you know. I am lucky to have you in my life, and I’ll always be grateful for our friendship. (You are always special to me) 💖";
+    layer5.appendChild(msg2);
+
+    setTimeout(() => msg1.style.opacity = 1, 1000);
+    setTimeout(() => msg1.style.opacity = 0, 5000);
+    setTimeout(() => msg2.style.opacity = 1, 7000);
+
+    layer5.dataset.started = '1';
+  }
+
+  // Start on layer1 visible (already visible by default)
+  // For safety, ensure the first layer shows if user reloads
+  document.getElementById('layer1').style.display = 'block';
+</script>
+</body>
+</html>
