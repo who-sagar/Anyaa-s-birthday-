@@ -12,7 +12,8 @@
     margin: 0;
     padding: 0;
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto; /* allow vertical scroll */
     text-align: center;
     /* keep the soft pink gradient used in Layer 1 as the base theme */
     background: linear-gradient(to bottom right, #ffe6f0, #ffcce0);
@@ -55,10 +56,12 @@
   }
   .next-button:hover { background-color: #ff3385; transform: scale(1.03); }
 
-  /* ===== Layer 2 (tulips) ===== */
+  /* ===== Layer 2 (tulips) — fixed ===== */
   .layer2 {
     background: url('my-tulips.jpg') no-repeat center center/cover;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
+    padding: 40px 20px;
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -78,7 +81,14 @@
   }
   .message-box h2 { color: #fff; text-shadow: 0 0 10px #ff66cc; font-size: 2rem; }
   @keyframes glow { from { box-shadow: 0 0 20px #ff99cc } to { box-shadow: 0 0 40px #ff66cc } }
-  .layer2 .next-button { margin-top: 30px; background-color: #ff66b2; }
+
+  .layer2 .next-button {
+    margin-top: 30px;
+    background-color: #ff66b2;
+    position: sticky;
+    bottom: 20px;
+    align-self: center;
+  }
   .layer2 .next-button:hover { background-color: #ff3399; }
 
   /* ===== Layer 3 (memories) ===== */
@@ -186,6 +196,7 @@
   @media (max-width: 768px) {
     .memory { width: 100%; left: 0 !important; display: block; }
     .timeline::after { left: 20px; }
+    .layer2 { justify-content: flex-start; }
   }
 
   /* ===== Layer 4 (cake) — scoped to #layer4 to avoid collisions ===== */
@@ -262,6 +273,25 @@
   @keyframes drift { from { transform: translate(0,0) scale(1) } to { transform: translate(200px, -200px) scale(1.5) } }
   .layer5 .message { position:absolute; width:100%; text-align:center; font-size:2rem; top:40%; opacity:0; transition: opacity 2s ease-in-out; }
 
+  /* ===== Large screen adjustment ===== */
+  @media (min-width: 1000px) {
+    .layer2, .layer3 {
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    /* ensure inner images scale down if needed */
+    .layer3 .memory img, .layer3 img {
+      max-width: 100%;
+      height: auto;
+    }
+    .layer2 .message-box {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  }
+
   /* small layout helpers */
   .hidden { display: none !important; }
 </style>
@@ -292,12 +322,12 @@
     <div class="message-box">
       <h2>
         🌷Happiest birthday dear Anyaa,
-    May Bajrangbali bless you with happiness and may you have the most beautiful birthday ever.  
-    (A heart so kind, a soul so bright,  
-    You make even dull days feel light.  
-    Happy birthday, queen of grace,  
-    May life always give you a warm embrace. 💐)  
-    Best wishes for my cutest friend 🎉✨ May your day bloom as beautifully as these tulips,<br/>
+    May Bajrangbali bless you with happiness and may you have the most beautiful birthday ever.  
+    (A heart so kind, a soul so bright,  
+    You make even dull days feel light.  
+    Happy birthday, queen of grace,  
+    May life always give you a warm embrace. 💐)  
+    Best wishes for my cutest friend 🎉✨ May your day bloom as beautifully as these tulips,<br/>
         just like your smile lights up the world. 🌸<br/><br/>
         Ready for the next surprise? 🎁
       </h2>
